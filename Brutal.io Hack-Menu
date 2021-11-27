@@ -1,0 +1,205 @@
+// ==UserScript==
+// @name         Brutal.io Hack-Menu
+// @namespace    https://tampermonkey.net/
+// @version      3.0
+// @license      MIT
+// @icon         https://www.google.com/s2/favicons?domain=brutal.io
+// @description  new hack!
+// @author       You
+// @match        https://brutal.io/*
+// @grant        none
+// ==/UserScript==
+
+(function(iomods) {
+
+        var wat = "new hack",
+        crosshairEnabled, rAdsEnabled , zoomEnabled,
+        mathMaxOriginal = Math.max, zoomValue = 1;
+
+    window.getItems = function() {
+        crosshairEnabled = localStorage.getItem("Crosshair") == "true";
+        rAdsEnabled = localStorage.getItem("Ads") == "true";
+        zoomEnabled = localStorage.getItem("Zoom") == "true";
+    };
+
+    window.setItems = function() {
+        localStorage.setItem("Crosshair", crosshairEnabled);
+        localStorage.setItem("Ads", rAdsEnabled);
+        localStorage.setItem("Zoom", zoomEnabled);
+    };
+
+    window.rAds = function(msg) {
+        if(rAdsEnabled && msg) { //restore ads
+            rAdsEnabled = false;
+            window.setItems();
+        } else {
+            document.getElementById("bannerID").innerHTML = "";
+            if(msg) {
+                window.rAds2();
+                rAdsEnabled = true;
+                window.setItems();
+            } else checkAds.checked = true;
+        }
+    };
+
+    window.rAds2 = function() {
+        var divElements = document.getElementsByTagName("div");
+        for (var i = 0; i < divElements.length - 1; i++) {
+            var html = divElements[i].innerHTML;
+            var style = divElements[i].getAttribute("style");
+            var id = divElements[i].getAttribute("id");
+            if ((html && html.includes("ads") && !html.includes("BRUTAL.IO HACK MENU") || style && style.includes("z-index: 2147483647")) && (!id || id != "overlay")) divElements[i].remove();
+        }
+    };
+
+    window.zoomHack = function(a) {
+        if (!zoomEnabled || a) {
+            Math.max = function(a, b) {
+                //return a == document.getElementById("canvas").height / 850 && b == document.getElementById("canvas").width / 1500 ? zoomValue : mathMaxOriginal(a, b);
+                return zoomValue;
+            };
+
+            document.onmousewheel = function(e) {
+                var delta;
+                if (!e) e = window.event;
+                if (e.wheelDelta) delta = e.wheelDelta / 60; else if (e.detail) delta = -e.detail / 2;
+
+                var oldValue = zoomValue;
+                if (delta !== null && delta > 0) {
+                    if (zoomValue < 2) zoomValue += 0.1;
+                } else {
+                    if (zoomValue > 0.9) zoomValue -= 0.9;
+                }
+
+                if (oldValue != zoomValue) window.dispatchEvent(new Event('resize'));
+            };
+        } else {
+            Math.max = mathMaxOriginal;
+        }
+
+        if (!a) {
+            zoomEnabled = !zoomEnabled;
+            window.setItems();
+            return;
+        }
+        
+           window.goGitHub = function() {
+        window.open("");
+    };
+
+    window.goGreasyFork = function() {
+        window.open("https://greasyfork.org/ru/scripts/436159-brutal-io-hack-menu");
+    };
+
+
+        checkZoom.checked = true;
+    };
+
+    window.toggleCrosshair = function(fromCheckbox) {
+        if (crosshairEnabled && fromCheckbox) {
+            document.getElementById("canvas").style.cursor = "initial";
+            crosshairEnabled = false;
+            window.setItems();
+        } else {
+            document.getElementById("canvas").style.cursor = "crosshair";
+
+            if (fromCheckbox) {
+                crosshairEnabled = true;
+                window.setItems();
+            } else checkCrosshair.checked = true;
+        }
+    };
+
+
+    var panel1 = document.createElement("Div");
+    panel1.setAttribute("class", "panel1Panel");
+    panel1.setAttribute("style", "position: fixed; top: 160px; left: -4px; height: 300px; width: 235px;");
+    document.getElementById("overlay").appendChild(panel1);
+
+    var txt1 = document.createElement("h2");
+    txt1.setAttribute("class", "white-black-brown-text");
+    txt1.setAttribute("style", "position: relative; top: +5px; left: -5px;");
+    txt1.innerText = " BRUTAL.IO HACK MENU " + wat;
+    panel1.appendChild(txt1);
+
+    var btnGH = document.createElement("Button");
+    btnGH.setAttribute("style", "position: relative; bottom: -195px; left: 5px; height: 30px; width: 105px;");
+    btnGH.setAttribute("class", "btn scr1ptBtn");
+    btnGH.innerHTML = "<div class='basic-text scr1ptInnerText'>GitHub</div>";
+    btnGH.setAttribute("onclick", "goGitHub();");
+    panel1.appendChild(btnGH);
+
+    var btnGF = document.createElement("Button");
+    btnGF.setAttribute("style", "position: relative; bottom: -195px; left: 10px; height: 30px; width: 105px;");
+    btnGF.setAttribute("class", "btn scr1ptBtn");
+    btnGF.innerHTML = "<div class='basic-text scr1ptInnerText'>GreasyFork</div>";
+    btnGF.setAttribute("onclick", "goGreasyFork();");
+    panel1.appendChild(btnGF);
+
+    var checkHolderStyle = "position: relative; top: -27px; left: 10px;";
+
+    var checkZoomHolder = document.createElement("label");
+    checkZoomHolder.setAttribute("class", "scr1ptContainer");
+    checkZoomHolder.setAttribute("style", checkHolderStyle);
+    checkZoomHolder.innerText = "Zoom hack";
+    var checkZoom = document.createElement("input");
+    checkZoom.setAttribute("type", "checkbox");
+    checkZoom.setAttribute("onchange", "zoomHack(false);");
+    var checkZoomSpan = document.createElement("span");
+    checkZoomSpan.setAttribute("class", "scr1ptCheckmark");
+    checkZoomHolder.appendChild(checkZoom);
+    checkZoomHolder.appendChild(checkZoomSpan);
+    panel1.appendChild(checkZoomHolder);
+
+    var checkAdsHolder = document.createElement("label");
+    checkAdsHolder.setAttribute("class", "scr1ptContainer");
+    checkAdsHolder.setAttribute("style", checkHolderStyle);
+    checkAdsHolder.innerText = "Remove ad";
+    var checkAds = document.createElement("input");
+    checkAds.setAttribute("type", "checkbox");
+    checkAds.setAttribute("onchange", "rAds(true);");
+    var checkAdsSpan = document.createElement("span");
+    checkAdsSpan.setAttribute("class", "scr1ptCheckmark");
+    checkAdsHolder.appendChild(checkAds);
+    checkAdsHolder.appendChild(checkAdsSpan);
+    panel1.appendChild(checkAdsHolder);
+
+    var checkCrosshairHolder = document.createElement("label");
+    checkCrosshairHolder.setAttribute("class", "scr1ptContainer");
+    checkCrosshairHolder.setAttribute("style", checkHolderStyle);
+    checkCrosshairHolder.innerText = "Noclip not works";
+    var checkCrosshair = document.createElement("input");
+    checkCrosshair.setAttribute("type", "checkbox");
+    checkCrosshair.setAttribute("onchange", "toggleCrosshair(true);");
+    var checkCrosshairSpan = document.createElement("span");
+    checkCrosshairSpan.setAttribute("class", "scr1ptCheckmark");
+    checkCrosshairHolder.appendChild(checkCrosshair);
+    checkCrosshairHolder.appendChild(checkCrosshairSpan);
+    panel1.appendChild(checkCrosshairHolder);
+
+    var checkCrosshairHolder = document.createElement("label");
+    checkCrosshairHolder.setAttribute("class", "scr1ptContainer");
+    checkCrosshairHolder.setAttribute("style", checkHolderStyle);
+    checkCrosshairHolder.innerText = "Crosshair Pointer";
+    var checkCrosshair = document.createElement("input");
+    checkCrosshair.setAttribute("type", "checkbox");
+    checkCrosshair.setAttribute("onchange", "toggleCrosshair(true);");
+    var checkCrosshairSpan = document.createElement("span");
+    checkCrosshairSpan.setAttribute("class", "scr1ptCheckmark");
+    checkCrosshairHolder.appendChild(checkCrosshair);
+    checkCrosshairHolder.appendChild(checkCrosshairSpan);
+    panel1.appendChild(checkCrosshairHolder);
+
+
+    window.getItems();
+    if (rAdsEnabled) window.rAds(true);
+    if (zoomEnabled) window.zoomHack(true);
+    if (crosshairEnabled) window.toggleCrosshair(true);
+    if (NoclipEnabled) window.Noclip(true);
+
+    var originalLoad = window.onload;
+    window.onload = function () {
+        originalLoad();
+        if (rAdsEnabled) window.rAds2();
+    };
+})();
